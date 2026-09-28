@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
   },
   "repository": {
     "type": "git",
@@ -13,9 +15,23 @@
   "keywords": [],
   "author": "Kiril Bytsyra <kyryle0110@gmail.com>",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/kyryle/nodejs-hw/issues"
   },
-  "homepage": "https://github.com/kyryle/nodejs-hw#readme"
+  "homepage": "https://github.com/kyryle/nodejs-hw#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "pino-http": "^11.0.0",
+    "pino-pretty": "^13.1.3"
+  }
 }
