@@ -5,5 +5,5 @@ export const errorHandler = (error, req, res, next) => {
   if (isHttpError(error)) {
     return res.status(error.status).json({ error: error.message });
   }
-  res.status(500).json({ message: isInProduction ? error.message : error });
+  res.status(500).json({ message: isInProduction ? error.message : error.message });
 };

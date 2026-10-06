@@ -18,7 +18,7 @@ export const getNoteById = async (req, res) => {
 
 export const createNote = async (req, res) => {
   const newNote = await Note.create(req.body);
-  res.status(201).json({"Note created": newNote});
+  res.status(201).json(newNote);
 };
 
 export const deleteNote = async (req, res) => {
@@ -27,7 +27,7 @@ export const deleteNote = async (req, res) => {
   if (!deletedNote) {
     throw createHttpError(404, "this note not found");
   }
-  res.status(200).json({"Note deleted": deletedNote});
+  res.status(200).json(deletedNote);
 };
 
 export const updateNote = async (req, res) => {
@@ -36,5 +36,5 @@ export const updateNote = async (req, res) => {
   if (!updatedNote) {
     throw createHttpError(404, "this note not found");
   }
-  res.status(200).json({"Note updated": updatedNote});
+  res.status(200).json(updatedNote);
 };

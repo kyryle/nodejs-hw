@@ -1,26 +1,24 @@
 import express from "express";
 import cors from "cors";
-import helmet from "helmet";
 import "dotenv/config";
 import { connectMongoDB } from "./db/connectMongoDB.js";
 import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-import noteRoutes from "./routes/notesRoutes.js";
+import router from "./routes/notesRoutes.js";
 import { logger } from "./middleware/logger.js";
 
 const PORT = process.env.PORT ?? 3000;
 
 const app = express();
 
-app.use(noteRoutes);
-
 app.use(cors({
   origin: "*"
 }));
-app.use(helmet());
 app.use(express.json());
 
 app.use(logger);
+
+app.use(router);
 
 app.use((notFoundHandler));
 
