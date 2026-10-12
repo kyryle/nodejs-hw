@@ -6,7 +6,7 @@ const validateObjectId = (value, helpers) => {
   if (isValidObjectId(value)) {
     return value;
   } else {
-    return helpers.message("Invalid id format");
+    return helpers.message("Invalid noteId format");
   }
 };
 
@@ -36,7 +36,7 @@ export const createNoteSchema = ({
 export const updateNoteSchema = ({
   [Segments.BODY]: Joi.object({
     title: Joi.string().min(1),
-    content: Joi.string(),
+    content: Joi.string().allow(''),
     tag: Joi.string().valid(...TAGS),
   }).min(1),
   ...noteIdSchema,
