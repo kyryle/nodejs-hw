@@ -12,10 +12,10 @@ const validateObjectId = (value, helpers) => {
 
 export const getAllNotesSchema = ({
   [Segments.QUERY]: Joi.object({
-    page: Joi.number().min(1).integer(),
-    perPage: Joi.number().min(5).max(20).integer(),
+    page: Joi.number().min(1).integer().default(1),
+    perPage: Joi.number().min(5).max(20).integer().default(10),
     tag: Joi.string().valid(...TAGS),
-    search: Joi.string(),
+    search: Joi.string().allow(''),
   })
 });
 
@@ -28,7 +28,7 @@ export const noteIdSchema = ({
 export const createNoteSchema = ({
   [Segments.BODY]: Joi.object({
     title: Joi.string().min(1).required(),
-    content: Joi.string(),
+    content: Joi.string().allow(''),
     tag: Joi.string().valid(...TAGS),
   })
 });
