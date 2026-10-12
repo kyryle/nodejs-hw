@@ -1,9 +1,47 @@
 import createHttpError from "http-errors";
 import { Note } from "../models/note.js";
+// import { TAGS } from "../constants/tags.js";
 
 export const getAllNotes = async (req, res) => {
-  const notes = await Note.find();
-  res.status(200).json(notes);
+  const { page = 1, perPage = 10 } = req.query;
+
+  const skip = (page - 1) * perPage;
+
+  // const notes = await Note.find().skip(skip).limit(perPage);
+
+  // const totalNotes = await Note.countDocuments();
+
+  const filters = {};
+
+  const { tag } = req.query;
+  if (tag) {
+    filters.tag = { $eq: tag };
+  }
+  const { search } = req.query;
+  if (search) {
+  Note.where({
+  $or: [
+    { title: { $regex: search, $options: 'i' } },
+    { content: { $regex: search, $options: 'i' } },
+  ],
+});
+    // filters.title = { $eq: search };
+}
+
+  const [notes, totalNotes] = await Promise.all([
+    Note.find(filters).skip(skip).limit(perPage),
+    Note.countDocuments(filters)
+  ]);
+
+  const totalPages = Math.ceil(totalNotes / perPage);
+
+  res.status(200).json({
+    page,
+    perPage,
+    totalNotes,
+    totalPages,
+    notes,
+  });
 };
 
 
