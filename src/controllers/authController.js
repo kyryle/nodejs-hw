@@ -33,7 +33,7 @@ export const loginUser = async (req, res) => {
     throw createHttpError(401, "Invalid credentials");
   }
 
-  await Session.deleteOne();
+  await Session.deleteOne("sessionId");
 
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
@@ -51,6 +51,9 @@ export const logoutUser = async (req, res) => {
     await Session.deleteOne({ _id: sessionId });
   }
 
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.clearCookie("sessionId");
 
   res.status(204).send();
 };
@@ -72,7 +75,7 @@ export const refreshUserSession = async (req, res) => {
   const isRefreshTokenExpired = session.refreshTokenValidUntil < new Date();
   if (isRefreshTokenExpired) {
 
-    await Session.deleteOne();
+    await Session.deleteOne("sessionId");
     res.clearCookie("sessionId");
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
