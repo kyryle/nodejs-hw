@@ -5,7 +5,7 @@ import { connectMongoDB } from "./db/connectMongoDB.js";
 import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import noteRouter from "./routes/notesRoutes.js";
-import Authrouter from "./routes/authRoutes.js";
+import authRouter from "./routes/authRoutes.js";
 import { logger } from "./middleware/logger.js";
 import { errors } from "celebrate";
 import cookieParser from "cookie-parser";
@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(logger);
 
 app.use(noteRouter);
-app.use(Authrouter);
+app.use(authRouter);
 
 app.use((notFoundHandler));
 

@@ -33,6 +33,12 @@ export const loginUser = async (req, res) => {
     throw createHttpError(401, "Invalid credentials");
   }
 
+  await Session.deleteOne();
+
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.clearCookie("sessionId");
+
   const newSession = await createSession(user._id);
   setSessionCookies(res, newSession);
 
@@ -44,16 +50,14 @@ export const logoutUser = async (req, res) => {
   if (sessionId) {
     await Session.deleteOne({ _id: sessionId });
   }
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  res.clearCookie("sessionId");
+
 
   res.status(204).send();
 };
 
-export const refreshSession = async (req, res) => {
+export const refreshUserSession = async (req, res) => {
   const { sessionId, refreshToken } = req.cookies;
-  if (!sessionId || refreshToken) {
+  if (!refreshToken) {
       throw createHttpError(401, 'Missing refresh token');
   }
 
@@ -68,8 +72,8 @@ export const refreshSession = async (req, res) => {
   const isRefreshTokenExpired = session.refreshTokenValidUntil < new Date();
   if (isRefreshTokenExpired) {
 
-    await session.deleteOne();
-    res.clearCookie("sessionsId");
+    await Session.deleteOne();
+    res.clearCookie("sessionId");
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
 
@@ -77,13 +81,13 @@ export const refreshSession = async (req, res) => {
     };
 
     const user = await User.findOne({ _id: session.userId });
-    if (user) {
+    if (!user) {
       throw createHttpError(401);
   };
 
   await session.deleteOne();
 
-  const newSession = await createSession(session._id);
+  const newSession = await createSession(session.userId);
   setSessionCookies(res, newSession);
 
   res.status(200).json({"message": "Session refreshed"});
