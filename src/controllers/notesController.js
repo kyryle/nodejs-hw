@@ -63,7 +63,7 @@ export const deleteNote = async (req, res) => {
     userId: req.user._id,
   });
   if (!deletedNote) {
-    throw createHttpError(404, 'this note not found');
+    throw createHttpError(404, 'This note was not found');
   }
   res.status(200).json(deletedNote);
 };
@@ -79,7 +79,7 @@ export const updateNote = async (req, res) => {
     { returnDocument: 'after' },
   );
   if (!updatedNote) {
-    throw createHttpError(404, 'this note not found');
+    throw createHttpError(404, 'This note was not found');
   }
   res.status(200).json(updatedNote);
 };
