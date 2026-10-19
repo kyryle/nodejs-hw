@@ -33,7 +33,7 @@ export const loginUser = async (req, res) => {
     throw createHttpError(401, "Invalid credentials");
   }
 
-  await Session.deleteOne({ _id: req.cookies.sessionId });
+  await Session.deleteOne({ _id: user._id });
 
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
