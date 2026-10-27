@@ -6,6 +6,7 @@ import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import noteRouter from "./routes/notesRoutes.js";
 import authRouter from "./routes/authRoutes.js";
+import userRouter from "./routes/userRoutes.js";
 import { logger } from "./middleware/logger.js";
 import { errors } from "celebrate";
 import cookieParser from "cookie-parser";
@@ -24,6 +25,7 @@ app.use(logger);
 
 app.use(noteRouter);
 app.use(authRouter);
+app.use(userRouter);
 
 app.use((notFoundHandler));
 

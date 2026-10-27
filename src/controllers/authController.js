@@ -1,8 +1,10 @@
 import createHttpError from "http-errors";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { User } from "../models/user.js";
 import { createSession, setSessionCookies } from "../services/auth.js";
 import { Session } from "../models/session.js";
+import { sendEmail } from "../utils/sendMail.js";
 
 export const registerUser = async (req, res) => {
   const { email, password } = (req.body);
@@ -94,4 +96,57 @@ export const refreshUserSession = async (req, res) => {
   setSessionCookies(res, newSession);
 
   res.status(200).json({"message": "Session refreshed"});
+};
+
+
+export const requestResetEmail = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(200).json({ message: 'Password reset email sent successfully' });
+  }
+
+  const resetToken = jwt.sign({ sub: user._id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' });
+
+  const frontendURL = `${process.env.FRONTEND_DOMAIN}/reset-password?token=${resetToken}`;
+
+  await sendEmail({
+    from: process.env.SMTP_FROM,
+    to: email,
+    subject: "Password reset link",
+    html: `<p>Email reset <a href=${frontendURL}>link</a></p>`
+  });
+
+  res.status(200).json({ message: 'Password reset email sent successfully' });
+};
+
+
+export const resetPasswrd = async (req, res) => {
+  const { token, password } = req.body;
+
+  let payload;
+
+  try {
+  payload = jwt.verify(token, process.env.JWT_SECRET);
+  // eslint-disable-next-line no-unused-vars
+  } catch (error) {
+    throw createHttpError(401, "Bad token");
+  }
+
+  const user = await User.findOne({ _id: payload.sub, email: payload.email });
+  if (!user) {
+    throw createHttpError(404, "User not found");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  User.updateOne({ _id: user._id }, { password: hashedPassword });
+
+  await Session.deleteMany({ userId: user._id });
+
+  res.status(200).json({message: "Password reseted"});
+
+  res.status(200).json();
 };
