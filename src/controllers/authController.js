@@ -5,6 +5,9 @@ import { User } from "../models/user.js";
 import { createSession, setSessionCookies } from "../services/auth.js";
 import { Session } from "../models/session.js";
 import { sendEmail } from "../utils/sendMail.js";
+import Handlebars from "handlebars";
+import fs from "fs";
+import path from "path";
 
 export const registerUser = async (req, res) => {
   const { email, password } = (req.body);
@@ -111,13 +114,18 @@ export const requestResetEmail = async (req, res) => {
     process.env.JWT_SECRET,
     { expiresIn: '15m' });
 
+
   const frontendURL = `${process.env.FRONTEND_DOMAIN}/reset-password?token=${resetToken}`;
+  const templatePath = path.join(__dirname, "../templates/reset-password-email.html");
+  const templateRead = fs.readFileSync(templatePath, "utf-8");
+  const template = Handlebars.compile(templateRead);
+  const HtmlToSend = template({frontendURL});
 
   await sendEmail({
     from: process.env.SMTP_FROM,
     to: email,
     subject: "Password reset link",
-    html: `<p>Email reset <a href=${frontendURL}>link</a></p>`
+    html: HtmlToSend
   });
 
   res.status(200).json({ message: 'Password reset email sent successfully' });
