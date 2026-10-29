@@ -8,6 +8,7 @@ import { sendEmail } from "../utils/sendMail.js";
 import Handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
 export const registerUser = async (req, res) => {
   const { email, password } = (req.body);
@@ -101,6 +102,8 @@ export const refreshUserSession = async (req, res) => {
   res.status(200).json({"message": "Session refreshed"});
 };
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const requestResetEmail = async (req, res) => {
   const { email } = req.body;
@@ -116,23 +119,28 @@ export const requestResetEmail = async (req, res) => {
 
 
   const frontendURL = `${process.env.FRONTEND_DOMAIN}/reset-password?token=${resetToken}`;
+  const name = user.username;
+
   const templatePath = path.join(__dirname, "../templates/reset-password-email.html");
   const templateRead = fs.readFileSync(templatePath, "utf-8");
   const template = Handlebars.compile(templateRead);
-  const HtmlToSend = template({frontendURL});
+  const HtmlToSend = template({name ,frontendURL});
 
-  await sendEmail({
+  const emailResult = await sendEmail({
     from: process.env.SMTP_FROM,
     to: email,
     subject: "Password reset link",
     html: HtmlToSend
   });
+  if (!emailResult) {
+    throw createHttpError(500, "something went wrong");
+  }
 
   res.status(200).json({ message: 'Password reset email sent successfully' });
 };
 
 
-export const resetPasswrd = async (req, res) => {
+export const resetPassword = async (req, res) => {
   const { token, password } = req.body;
 
   let payload;
@@ -150,11 +158,9 @@ export const resetPasswrd = async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  User.updateOne({ _id: user._id }, { password: hashedPassword });
+  await User.updateOne({ _id: user._id }, { password: hashedPassword });
 
   await Session.deleteMany({ userId: user._id });
 
   res.status(200).json({message: "Password reseted"});
-
-  res.status(200).json();
 };

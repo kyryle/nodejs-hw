@@ -10,7 +10,8 @@ export async function saveFileToCloudinary(buffer, userId) {
     folder: "users/avatars",
     public_id: `avatar_${userId}`,
     overwrite: true,
-    
+    resource_type: "image",
+    unique_filename: true,
   };
 
 
